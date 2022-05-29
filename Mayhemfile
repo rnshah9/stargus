@@ -1,0 +1,5 @@
+project: rnshah9/stargus
+target: stargus
+
+cmds:
+  - cmd: /repo/tools/binreader @@
