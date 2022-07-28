@@ -2,4 +2,4 @@ project: stargus
 target: binreader
 
 cmds:
-  - cmd: /repo/tools/binreader @@
+  - cmd: /binreader @@
