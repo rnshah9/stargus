@@ -34,10 +34,10 @@
  --  General
  ----------------------------------------------------------------------------*/
 
-#define VERSION "2.4.1" // Version of extractor startool
+#define VERSION "3.3.0" // Version of extractor startool
 
 const char NameLine[] =
-    "startool V" VERSION " for Stratagus (c) 2002-2021 by the Stratagus Project.\n";
+    "startool V" VERSION " for Stratagus (c) 2002-2022 by the Stratagus Project.\n";
 
 /*----------------------------------------------------------------------------
  --  Includes
@@ -55,7 +55,6 @@ const char NameLine[] =
 #include <string>
 
 #ifdef _MSC_VER
-#define strdup _strdup
 #define PATH_MAX _MAX_PATH
 #include <windows.h>
 #include <direct.h>

@@ -18,29 +18,6 @@ Control Todo_bootstrap[] = {
 
 Control Todo[] = {
 
-  // Palettes have to be first because everything depends on it!
-  // Pcx palette type
-  // 0 = default
-  // 1 = icon
-  // 2 = select
-  // 3 = 2D palette (e.g. fire)
-  /*{PAL,0,"tblink","game\\tblink.pcx",0 __3},
-  {PAL,0,"tfontgam","game\\tfontgam.pcx",2 __3},
-  {PAL,0,"thpbar","game\\thpbar.pcx",0 __3},
-  {PAL,0,"tminimap","game\\tminimap.pcx",0 __3},
-  {PAL,0,"tselect","game\\tselect.pcx",2 __3},
-  {PAL,0,"tunit","game\\tunit.pcx",0 __3},
-  {PAL,0,"twire","game\\twire.pcx",0 __3},
-  {PAL,0,"ticon","unit\\cmdbtns\\ticon.pcx",1 __3},
-  {PAL,0,"ofire","tileset\\ashworld\\ofire.pcx",3 __3},
-  //{PAL,0,"bfire","tileset\\ashworld\\bfire.pcx",3 __3},
-
-  {WPE,0,"install","tileset\\install.wpe",0 __3},
-  {WPE,0,"jungle","tileset\\jungle.wpe",0 __3},
-  {WPE,0,"badlands","tileset\\badlands.wpe",0 __3},
-  {WPE,0,"platform","tileset\\platform.wpe",0 __3},
-  {WPE,0,"ashworld","tileset\\ashworld.wpe",0 __3},*/
-
 //	{G,0,"ui/blink","game\\blink.grp",0 __3},
 
 	//Video
@@ -61,8 +38,6 @@ Control Todo[] = {
 	{I,0,"ui/protoss","dlgs\\protoss.grp",0 __3},
 	{I,0,"ui/terran","dlgs\\terran.grp",0 __3},
 	{I,0,"ui/zerg","dlgs\\zerg.grp",0 __3},
-
-
 
 	{H,0,"ui/aggicons","game\\aggicons.pcx",0 __3},
 	{H,0,"ui/pconover","game\\pconover.pcx",0 __3},
@@ -107,7 +82,40 @@ Control Todo[] = {
 	{P,0,"mainmenu/multionfr","glue\\mainmenu\\multionfr.smk" __4},
 	{P,0,"mainmenu/singleones","glue\\mainmenu\\singleones.smk" __4},
 
-	{G,0,"ui/o022","unit\\thingy\\o022.grp",2 __3},
+	//race ready videos
+	{P,0,"readyp/ring","glue\\readyp\\ring.smk" __4},
+	{P,0,"readyp/glow","glue\\readyp\\glow.smk" __4},
+	{P,0,"readyz/start","glue\\readyz\\start.smk" __4},
+	{P,0,"readyz/starton","glue\\readyz\\starton.smk" __4},
+	{P,0,"readyz/drip","glue\\readyz\\drip.smk" __4},
+	{P,0,"readyt/start","glue\\readyt\\start.smk" __4},
+	{P,0,"readyt/starton","glue\\readyt\\starton.smk" __4},
+	{P,0,"readyt/proj","glue\\readyt\\proj.smk" __4},
+	{P,0,"readyt/proloop","glue\\readyt\\proloop.smk" __4},
+
+	//campaign videos
+	{P,0,"campaign/protonde","glue\\campaign\\protonde.smk" __4},
+	{P,0,"campaign/terr","glue\\campaign\\terr.smk" __4},
+	{P,0,"campaign/protonfr","glue\\campaign\\protonfr.smk" __4},
+	{P,0,"campaign/terron","glue\\campaign\\terron.smk" __4},
+	{P,0,"campaign/terronit","glue\\campaign\\terronit.smk" __4},
+	{P,0,"campaign/zergon","glue\\campaign\\zergon.smk" __4},
+	{P,0,"campaign/zergonde","glue\\campaign\\zergonde.smk" __4},
+	{P,0,"campaign/terrones","glue\\campaign\\terrones.smk" __4},
+	{P,0,"campaign/zergones","glue\\campaign\\zergones.smk" __4},
+	{P,0,"campaign/terronde","glue\\campaign\\terronde.smk" __4},
+	{P,0,"campaign/proton","glue\\campaign\\proton.smk" __4},
+	{P,0,"campaign/prot","glue\\campaign\\prot.smk" __4},
+  {P,0,"campaign/disk","glue\\campaign\\disk.smk" __4},
+  {P,0,"campaign/zergonit","glue\\campaign\\zergonit.smk" __4},
+  {P,0,"campaign/terronfr","glue\\campaign\\terronfr.smk" __4},
+  {P,0,"campaign/protonit","glue\\campaign\\protonit.smk" __4},
+  {P,0,"campaign/protones","glue\\campaign\\protones.smk" __4},
+  {P,0,"campaign/zergonfr","glue\\campaign\\zergonfr.smk" __4},
+  {P,0,"campaign/zerg","glue\\campaign\\zerg.smk" __4},
+
+	// those selectors are not needed as they're drawn from the engine, remove them later
+	/*{G,0,"ui/o022","unit\\thingy\\o022.grp",2 __3},
 	{G,0,"ui/o032","unit\\thingy\\o032.grp",2 __3},
 	{G,0,"ui/o048","unit\\thingy\\o048.grp",2 __3},
 	{G,0,"ui/o062","unit\\thingy\\o062.grp",2 __3},
@@ -128,7 +136,7 @@ Control Todo[] = {
 	{G,0,"ui/od122","unit\\thingy\\od122.grp",2 __3},
 	{G,0,"ui/od146","unit\\thingy\\od146.grp",2 __3},
 	{G,0,"ui/od224","unit\\thingy\\od224.grp",2 __3},
-#endif
+#endif*/
 
 	{H,0,"terran/briefing room","glue\\PalRt\\Backgnd.pcx",0 __3},
 	{H,0,"terran/victory screen","glue\\PalTv\\Backgnd.pcx",0 __3},
@@ -497,7 +505,7 @@ Control Todo[] = {
 	{G,0,"protoss/units/carrier glow","unit\\thingy\\pcaGlow.grp",0 __3},
 	{G,0,"protoss/units/scarab explode","unit\\thingy\\psaExplo.grp",0 __3},
 	{G,0,"protoss/units/anti-matter missle","unit\\thingy\\HKexplod.grp",0 __3},
-	{G,0,"protoss/units/plasma shields?","unit\\thingy\\plasma.grp",0 __3},
+	{G,0,"protoss/units/plasma shields","unit\\thingy\\plasma.grp",0 __3},
 	{G,0,"protoss/units/psionic shock wave","unit\\thingy\\emsHit.grp",0 __3},
 	{G,0,"protoss/units/haluciantion cast","unit\\thingy\\eveCast.grp",0 __3},
 	{G,0,"protoss/units/halucination cast 2","unit\\thingy\\halmind.grp",0 __3},

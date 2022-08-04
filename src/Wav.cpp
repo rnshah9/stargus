@@ -8,18 +8,21 @@
 #include "Wav.h"
 #include "Hurricane.h"
 #include "platform.h"
+#include "Logger.h"
 
 // system
 
 using namespace std;
 
+static Logger logger = Logger("startool.Wav");
+
 Wav::Wav(std::shared_ptr<Hurricane> hurricane) :
-  Converter(hurricane), mLogger("startool.Wav")
+  Converter(hurricane)
 {
 }
 
 Wav::Wav(std::shared_ptr<Hurricane> hurricane, const std::string &arcfile) :
-  Converter(hurricane), mLogger("startool.Wav")
+  Converter(hurricane)
 {
 
 }
@@ -52,7 +55,7 @@ bool Wav::convert(const std::string &arcfile,  Storage storage)
     result = false;
   }
 
-  platform::remove(wav_file);
+  fs::remove(wav_file);
 
   return result;
 }

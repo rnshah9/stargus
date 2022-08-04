@@ -8,7 +8,6 @@
 #define DATAHUB_H
 
 // project
-#include "Logger.h"
 #include "KaitaiConverter.h"
 #include "Palette.h"
 #include "Palette2D.h"
@@ -35,29 +34,44 @@ using json = nlohmann::json;
 namespace dat
 {
 
+/**
+ * The DataHub parses the complete data structures inside those files:
+ * - arr\\units.dat
+ * - arr\\orders.dat
+ * - arr\\weapons.dat
+ * - arr\\flingy.dat
+ * - arr\\sprites.dat
+ * - arr\\images.dat
+ * - arr\\sfxdata.dat
+ * - arr\\portdata.dat
+ * - arr\\upgrades.dat
+ * - arr\\techdata.dat
+ * - arr\\mapdata.dat
+ * - rez\\stat_txt.tbl
+ * - arr\\images.tbl
+ * - arr\\sfxdata.tbl
+ * - arr\\portdata.tbl
+ * - arr\\mapdata.tbl
+ *
+ * As those data has have depends on each other they're all parsed together in one run. After being parsed
+ * to Kaitai data structures they could be accessed from outside.
+ *
+ * The Kaitai parsed objects in this class are by intension public. There's no benefit in putting dozen silly
+ * getter around them. The alternative to put them private means to implement every parser logic
+ * inside this class or friend them all.
+ *
+ * So the design decision is just to let them public and the outside accessing function should only read them!
+ * If I ever put this stuff to a general purpose library this design might change.
+ *
+ *  "with great power comes great responsibility" - (Spiderman)
+ */
 class DataHub : public KaitaiConverter
 {
 public:
   DataHub(std::shared_ptr<Hurricane> hurricane);
   virtual ~DataHub();
 
-  bool convert();
-
-  void printCSV();
-
-  bool convertUnits(json &unitsJson,
-                         std::map<std::string, std::shared_ptr<Palette>> &paletteMap,
-                         std::map<std::string, std::shared_ptr<Palette2D>> palette2DMap);
-
-
-
-private:
-  Logger mLogger;
-
-  static const int units_portrait_none = 65535;
-  static const int units_units_ready_sound_end = 106;
-
-  // Kaitai parser objects
+  // Kaitai parsed objects
   std::shared_ptr<units_dat_t> units;
   std::shared_ptr<orders_dat_t> orders;
   std::shared_ptr<weapons_dat_t> weapons;
@@ -70,33 +84,17 @@ private:
   std::shared_ptr<techdata_dat_t> techdata;
   std::shared_ptr<mapdata_dat_t> mapdata;
 
-  // Tbl vectors
+  // kaitai parsed Tbl vectors
   std::vector<TblEntry> stat_txt_vec;
   std::vector<TblEntry> images_tbl_vec;
   std::vector<TblEntry> sfxdata_tbl_vec;
   std::vector<TblEntry> portdata_tbl_vec;
   std::vector<TblEntry> mapdata_tbl_vec;
 
-  // Kaitai streams
-  std::shared_ptr<kaitai::kstream> stat_txt_ks;
-  std::shared_ptr<kaitai::kstream> mUnits_ks;
-  std::shared_ptr<kaitai::kstream> orders_ks;
-  std::shared_ptr<kaitai::kstream> weapons_ks;
-  std::shared_ptr<kaitai::kstream> flingy_ks;
-  std::shared_ptr<kaitai::kstream> sprites_ks;
-  std::shared_ptr<kaitai::kstream> images_ks;
-  std::shared_ptr<kaitai::kstream> images_tbl_ks;
-  std::shared_ptr<kaitai::kstream> sfxdata_ks;
-  std::shared_ptr<kaitai::kstream> sfxdata_tbl_ks;
-  std::shared_ptr<kaitai::kstream> portrait_ks;
-  std::shared_ptr<kaitai::kstream> portdata_tbl_ks;
-  std::shared_ptr<kaitai::kstream> upgrades_ks;
-  std::shared_ptr<kaitai::kstream> techdata_ks;
-  std::shared_ptr<kaitai::kstream> mapdata_ks;
-  std::shared_ptr<kaitai::kstream> mapdata_tbl_ks;
 
-  void initKaitaiStreams();
+  static const int units_units_ready_sound_end = 106;
 
+private:
   // units.dat
   void init_units_dat(bool has_broodwar_flag, bool has_max_air_hits,
       bool has_max_ground_hits);
@@ -166,11 +164,6 @@ private:
 
   static bool portdataCompare(int val1, int val2);
 
-  // we trust the other classes in the namespace to access our private members as this is easier
-  friend class Unit;
-  friend class Sprite;
-  friend class Image;
-  friend class Flingy;
 };
 
 } /* namespace dat */

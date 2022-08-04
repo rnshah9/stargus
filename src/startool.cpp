@@ -33,6 +33,8 @@
  ----------------------------------------------------------------------------*/
 
 // project
+#include <dat/UnitsConverter.h>
+#include <dat/PortraitsConverter.h>
 #include "dat/DataHub.h"
 #include "tileset/TilesetHub.h"
 #include "PngExporter.h"
@@ -57,6 +59,8 @@
 #include "Wav.h"
 #include "tileset/TilesetHub.h"
 #include "platform.h"
+#include "UIConsole.h"
+#include "StringUtil.h"
 
 // system
 #include <nlohmann/json.hpp>
@@ -84,7 +88,7 @@ using json = nlohmann::json;
 
 using namespace std;
 
-Logger logger("startool.main");
+static Logger logger("startool.main");
 
 // test only
 void testHook();
@@ -181,7 +185,7 @@ struct Arg: public option::Arg
 
 enum optionIndex
 {
-  UNKNOWN, HELP, VIDEO, VERSIONPARAM, DEV, DEV2
+  UNKNOWN, HELP, VIDEO, SOUND, VERSIONPARAM, DEV
 };
 const option::Descriptor usage[] =
 {
@@ -191,14 +195,9 @@ const option::Descriptor usage[] =
   },
   { HELP, 0, "h", "help", option::Arg::None, "  --help, -h  \t\tPrint usage and exit" },
   { VIDEO, 0, "v", "video", Arg::None, "  --video, -v  \t\tExtract and convert videos" },
-  {
-    DEV, 0, "d", "dev", Arg::None,
-    "  --dev, -d  \t\tSome test hooks while development. Don't use it if you don't know what it does!"
-  },
-  {
-    DEV2, 0, "d2", "dev2", Arg::None,
-    "  --dev2, -d2  \t\tSome test hooks while development. Don't use it if you don't know what it does!"
-  },
+  { SOUND, 0, "s", "sound", Arg::None, "  --sound, -v  \t\tExtract and convert sounds" },
+  { DEV, 0, "d", "dev", Arg::None,
+    "  --dev, -d  \t\tSome test hooks while development. Don't use it if you don't know what it does!"},
   { VERSIONPARAM, 0, "V", "version", Arg::None, "  --version, -V  \t\tShow version" },
   {
     UNKNOWN, 0, "", "", option::Arg::None,
@@ -232,14 +231,12 @@ int parseOptions(int argc, const char **argv)
     preferences.setVideoExtraction(true);
   }
 
-  // parse options
-  if (options[DEV].count() > 0)
+  if (options[SOUND].count() > 0)
   {
-    dev_hack = true;
+    preferences.setSoundExtraction(true);
   }
 
-  // parse options
-  if (options[DEV2].count() > 0)
+  if (options[DEV].count() > 0)
   {
     testHook();
   }
@@ -384,7 +381,13 @@ void testHook()
                               "/home/andreas/Downloads/Games/DOS/Starcraft/Original_Backup/starcraft_install.exe_MPQ/files/stardat.mpq");
   //shared_ptr<Breeze> storm = make_shared<Breeze>("/home/andreas/Downloads/Games/DOS/Starcraft/wintools/datedit/Default");
   //dat::DataHub datahub(storm);
-  //datahub.convert();
+  //datahub.printCSV();
+
+  //dat::PortraitsConverter portraits(storm, datahub);
+  //portraits.convert();
+
+  //Smacker smack(storm);
+  //smack.convertMNG("glue\\mainmenu\\multi.smk", "/tmp/multi");
 
   /// Image 1
   Pcx pcx1(storm, "game\\tunit.pcx");
@@ -428,15 +431,19 @@ void testHook()
   //grp.setRGBA(true);
 
 
-  //Tileset tileset(storm);
-  //tileset.convert("jungle", terrainPalette);
-
-  tileset::TilesetHub tilesethub(storm, "tileset\\jungle");
-  //tilesethub.convert(terrainPalette, "/tmp/test");
-
-  tilesethub.generateLua("Jungle", "tilesets/jungle/jungle.png", "/tmp/jungle.lua");
-
   grp.save("/tmp/marine.png");
+
+  Pcx pcx(storm, "game\\tconsole.pcx");
+  string console = "data/ui/tconsole";
+  bool case_func = pcx.savePNG(console + ".png");
+
+  UIConsole uic(storm);
+
+  //pixel count from left
+  int right = 296;
+  int left = 275;
+
+  uic.convert(console, left, right);
 
   cout << "end testHook()" << endl;
   exit(0);
@@ -607,7 +614,14 @@ int main(int argc, const char **argv)
 
     loadPalettes(sub_storm, paletteMap, palette2DMap);
 
-    datahub.convertUnits(units_json, paletteMap, palette2DMap);
+    if (preferences.getVideoExtraction())
+    {
+      dat::PortraitsConverter portraitsConverter(sub_storm, datahub);
+      portraitsConverter.convert();
+    }
+
+    dat::UnitsConverter unitsConverter(sub_storm, datahub);
+    unitsConverter.convert(units_json, paletteMap, palette2DMap);
 
     for (i = 0; i <= 1; ++i)
     {
@@ -726,7 +740,7 @@ int main(int argc, const char **argv)
         }
         break;
         case W: // WORKS!
-          if (!dev_hack)
+          if (preferences.getSoundExtraction())
           {
             printf("ConvertWav: %s, %s", c[u].File, c[u].ArcFile);
             Wav wav(storm);
@@ -739,7 +753,7 @@ int main(int argc, const char **argv)
           {
             printf("ConvertSmacker: %s, %s", c[u].File, c[u].ArcFile);
             Smacker video(storm);
-            case_func = video.ConvertVideo(c[u].ArcFile, videos(c[u].File));
+            case_func = video.convertOGV(c[u].ArcFile, videos(c[u].File));
             printf("...%s\n", case_func ? "ok" : "nok");
           }
           break;
@@ -748,7 +762,7 @@ int main(int argc, const char **argv)
           {
             printf("ConvertPortrait: %s, %s", c[u].File, c[u].ArcFile);
             Smacker video(storm);
-            case_func = video.ConvertPortrait(c[u].ArcFile, videos(c[u].File));
+            case_func = video.convertMNG(c[u].ArcFile, videos(c[u].File));
             printf("...%s\n", case_func ? "ok" : "nok");
           }
           break;
@@ -761,17 +775,26 @@ int main(int argc, const char **argv)
         }
         break;
         case E: // WORKS
-          printf("RawExtract: %s, %s", c[u].File, c[u].ArcFile);
-          // TBD: I think campaigns this must be somehow converted to stratagus
-          case_func = RawExtract(storm, c[u].ArcFile, data(c[u].File));
+        {
+          printf("Extract text: %s, %s", c[u].File, c[u].ArcFile);
+          auto chunk = storm->extractDataChunk(c[u].ArcFile);
+          char *utf8 = iconvISO2UTF8(reinterpret_cast<char*>(chunk->getDataPointer()));
+          if (utf8) {
+            chunk->replaceData(reinterpret_cast<unsigned char*>(utf8), strlen(utf8), 0);
+            free(utf8);
+            case_func = chunk->write(data(c[u].File).getFullPath());
+          } else {
+            case_func = false;
+          }
           printf("...%s\n", case_func ? "ok" : "nok");
-          break;
+        }
+        break;
         case L:
         {
           printf("ConvertCampaign (.chk): %s, %s", c[u].File, c[u].ArcFile);
           Chk chk(storm);
           chk.setUnitNames(unitNames);
-          case_func = chk.convert(c[u].ArcFile, c[u].File);
+          case_func = chk.convert(c[u].ArcFile, data(c[u].File));
           printf("...%s\n", case_func ? "ok" : "nok");
         }
         break;
@@ -780,6 +803,36 @@ int main(int argc, const char **argv)
         }
       }
     }
+
+    UIConsole uic(sub_storm);
+
+    // Terran console
+    string console = "ui/tconsole";
+    //pixel count from left
+    int left = 275;
+    int right = 296;
+
+    printf("UIConsole: %s", console.c_str());
+    uic.convert(graphics(console), left, right);
+    printf("...%s\n", case_func ? "ok" : "nok");
+
+    // Zerg console
+    console = "ui/zconsole";
+    left = 274;
+    right = 281;
+
+    printf("UIConsole: %s", console.c_str());
+    uic.convert(graphics(console), left, right);
+    printf("...%s\n", case_func ? "ok" : "nok");
+
+    // Protoss console
+    console = "ui/pconsole";
+    left = 227;
+    right = 265;
+
+    printf("UIConsole: %s", console.c_str());
+    uic.convert(graphics(console), left, right);
+    printf("...%s\n", case_func ? "ok" : "nok");
 
     // remove temporary sub files
     platform::unlink(sub_storm->getArchiveName());

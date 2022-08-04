@@ -19,29 +19,20 @@ error "Missing the <filesystem> header."
 #endif
 // <- filesystem
 
-#ifdef _MSC_VER
-#define strdup _strdup
-#define DEBUG _DEBUG
-#define PATH_MAX _MAX_PATH
-#include <direct.h>
-#include <io.h>
-#define dirname(x) PathRemoveFileSpec(x); if (x[strlen(x) - 1] == '\\') x[strlen(x) - 1] = '\0'
-#else
-#include <libgen.h>
-#include <limits.h>
-#include <unistd.h>
-#endif
-
 #include <string>
 
 namespace platform
 {
 
-int remove(const std::string &pathname);
-
-int remove_all(const std::string &pathname);
-
 int unlink(const std::string &pathname);
+
+char *strdup(const char *s);
+
+#if defined(_MSC_VER) || defined(WIN32)
+typedef int mode_t;
+#endif
+
+int mkdir(const std::string &pathname, mode_t mode = 0);
 
 } /* namespace platform */
 

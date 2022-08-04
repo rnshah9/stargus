@@ -25,15 +25,13 @@ using namespace std;
 #define GAME_CD_FILE_PATTERNS "install.exe", "Install.exe", "stardat.mpq", "StarDat.mpq", "starcraft.mpq", "StarCraft.mpq"
 #define GAME "stargus"
 #define EXTRACTOR_TOOL "startool"
-#define EXTRACTOR_ARGS {"-v", NULL}
+#define EXTRACTOR_ARGS {"-v -s", NULL}
 #define CHECK_EXTRACTED_VERSION 1
-// contrib has fog.png.
-// TODO: There's a bug in the lua files searching fog.png in the wrong path.
-// I have no time to search and fix that right now, but once that's done, there's
-// no need to copy it to two locations.
+
+// configure here which files/directories will be copied from stargus (e.g. contrib)
 #define CONTRIB_DIRECTORIES { "mpqlist.txt", "mpqlist.txt", \
-			      "contrib", "graphics/tilesets", \
-			      "contrib", "tilesets", \
+			      "contrib/fog.png", "graphics/tilesets/fog.png", \
+			      "contrib/transparent.png", "graphics/ui/transparent.png", \
 			      "scripts", "scripts", NULL }
 
 const char *SRC_PATH()

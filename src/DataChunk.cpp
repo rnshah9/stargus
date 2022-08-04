@@ -6,6 +6,7 @@
 
 // Local
 #include "DataChunk.h"
+#include "Logger.h"
 
 // System
 #include <stdlib.h>
@@ -15,20 +16,21 @@
 
 using namespace std;
 
+static Logger logger = Logger("startool.DataChunk");
+
 DataChunk::DataChunk() :
-  mLogger("startool.DataChunk"), mData(nullptr), mSize(0)
+  mData(nullptr), mSize(0)
 {
 
 }
 
 DataChunk::DataChunk(const DataChunk &datachunk) :
-  mLogger("startool.DataChunk"), mData(nullptr), mSize(0)
+  mData(nullptr), mSize(0)
 {
   addData(datachunk.mData, datachunk.mSize);
 }
 
-DataChunk::DataChunk(unsigned char **data, const size_t size) :
-  mLogger("startool.DataChunk")
+DataChunk::DataChunk(unsigned char **data, const size_t size)
 {
   mData = *data;
   mSize = size;
@@ -49,10 +51,13 @@ void DataChunk::addData(unsigned char *data, const size_t size)
 
 void DataChunk::replaceData(unsigned char *data, const size_t size, size_t pos)
 {
-  if((pos * sizeof(unsigned char) + size * sizeof(unsigned char)) <= mSize)
+  size_t new_size = pos * sizeof(unsigned char) + size * sizeof(unsigned char);
+  if (new_size > mSize)
   {
-    memcpy(mData + pos * sizeof(unsigned char), data, size);
+    mData = (unsigned char *) realloc(mData, new_size);
+    mSize = new_size;
   }
+  memcpy(mData + pos * sizeof(unsigned char), data, size);
 }
 
 unsigned char *DataChunk::getDataPointer() const
@@ -91,7 +96,7 @@ bool DataChunk::write(const std::string filename)
   }
   else
   {
-    LOG4CXX_DEBUG(mLogger, string("Couldn't write in: ") + filename);
+    LOG4CXX_DEBUG(logger, string("Couldn't write in: ") + filename);
     result = false;
   }
 
@@ -108,7 +113,7 @@ unsigned char DataChunk::at(size_t pos)
   }
   else
   {
-    LOG4CXX_WARN(mLogger, "'pos' bigger then data: " + to_string(pos) + " < " + to_string(mSize));
+    LOG4CXX_WARN(logger, "'pos' bigger then data: " + to_string(pos) + " < " + to_string(mSize));
   }
 
   return ret;

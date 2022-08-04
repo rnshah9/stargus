@@ -7,16 +7,14 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
+// project
+#include "Storage.h"
+#include "Converter.h"
+
 // System
 #include <memory>
 
-// project
-#include "Storage.h"
-
-// Forward declarations
-class Hurricane;
-
-class Smacker
+class Smacker : public Converter
 {
 public:
   Smacker(std::shared_ptr<Hurricane> hurricane);
@@ -25,12 +23,12 @@ public:
   /**
    *  Convert SMK video to OGV
    */
-  bool ConvertVideo(const std::string &arcfile, Storage storage);
+  bool convertOGV(const std::string &arcfile, Storage storage);
 
-  bool ConvertPortrait(const std::string &arcfile,  Storage storage);
+  bool convertMNG(const std::string &arcfile,  Storage storage);
 
 private:
-  std::shared_ptr<Hurricane> mHurricane;
+  bool callConvert(const std::string &cmd);
 };
 
 #endif /* VIDEO_H */

@@ -38,10 +38,10 @@
 -------------------------------------------------------------------------------
 
 Name = "Stargus"
-Version = "3.1.3"
+Version = "3.3.0"
 Homepage = "https://github.com/Wargus/stargus"
 Licence = "GPL v2"
-Copyright = "Copyright (c) 1998-2015 by The Stratagus Project and Pali Rohar"
+Copyright = "Copyright (c) 2002-2022 by The Stratagus Project and Pali Rohar"
 
 -- activate debugging
 pcall(function() require("scripts/mobdebug").start() end)
@@ -186,7 +186,11 @@ SetMinimapTerrain(true)
 
 Preference.GrayscaleIcons = true
 
+-- Western European Codepage
 SetFontCodePage(1252)
+
+-- Maximum fps for portraits and other animations
+Mng.MaxFPS = 15
 
 -------------------------------------------------------------------------------
 
@@ -294,9 +298,6 @@ end)
 AStar("fixed-unit-cost", 1000, "moving-unit-cost", 20, "know-unseen-terrain", "unseen-terrain-cost", 2)
 
 -------------------------------------------------------------------------------
-
---  Maximum number of selectable units
-SetMaxSelectable(18)
 
 --  All player food unit limit
 SetAllPlayersUnitLimit(400)

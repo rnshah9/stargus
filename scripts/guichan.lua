@@ -165,6 +165,22 @@ function AddMenuHelpers(menu)
     self:add(b, x, y)
     return b
   end
+  
+  function menu:addTextButton(caption, hotkey, x, y, callback, size)
+    local b = ButtonWidget(caption)
+    b:setFont(Fonts["font16x"])
+    b:setHotKey(hotkey)
+    b:setActionCallback(callback)
+    if size then
+      b:setSize(size[1], size[2])
+    else
+      b:adjustSize()
+    end
+    b:setBackgroundColor(Color(0, 0, 0, 0))
+    b:setBaseColor(Color(0, 0, 0, 0))
+    self:add(b, x, y)
+    return b
+  end
 
   function menu:addImageButton(caption, hotkey, x, y, callback)
     local b = ImageButton(caption)
@@ -437,6 +453,95 @@ function AddMenuHelpers(menu)
     self:add(b, x, y)
     return b
   end
+  
+  function menu:addAnimation(filename, x, y, center)
+    local mng1 = Mng:New(filename)
+    if mng1 then
+      mng1:Load()
+      mng1:Reset()
+      local im1 = ImageWidget(mng1)
+      
+      if center then
+        x = x - (im1:getWidth() / 2)
+      end
+      menu:add(im1, x, y)
+      
+      return im1
+    end
+  end
+
+  function menu:addAnimatedButton(filename, filenameOn, x, y, xOn, yOn, caption, hotkey, callback, animationIsBehind, center)
+    local mng1 = Mng:New(filename)
+    local im1
+    local mngOn
+    local imOn
+    if mng1 then
+      mng1:Load()
+      mng1:Reset()
+      im1 = ImageWidget(mng1)
+
+      if center then
+        x = x - (im1:getWidth() / 2)
+      end
+
+      if not animationIsBehind then
+        self:add(im1, x, y)
+      end
+
+      mngOn = Mng:New(filenameOn)
+      mngOn:Load()
+      imOn = ImageWidget(mngOn)
+      self:add(imOn, xOn, yOn)
+      imOn:setVisible(false)
+
+      if animationIsBehind then
+        self:add(im1, x, y)
+      end
+    end
+
+    local fnt = Fonts["font16x"]
+    local label_max_width = fnt:Width(caption)
+    local label_max_height = fnt:Height()
+    local max_width = label_max_width
+    local max_height = label_max_height
+    if im1 then
+      max_width = math.max(im1:getWidth(), label_max_width)
+      max_height = math.max(im1:getHeight(), label_max_height) 
+    end
+
+    local label = MultiLineLabel(caption)
+    label:setSize(max_width, max_height)
+    label:setAlignment(MultiLineLabel.RIGHT)
+    label:setVerticalAlignment(MultiLineLabel.BOTTOM)
+    label:setFont(fnt)
+    self:add(label, x, y)
+    
+    local button = self:addTextButton("", hotkey, x, y, callback, {max_width, max_height})
+
+    if mngOn then
+      button:setMouseCallback(function(evt, btn, cnt)
+        if evt == "mouseIn" then
+          mngOn:Reset()
+          imOn:setVisible(true)
+        elseif evt == "mouseOut" then
+          imOn:setVisible(false)
+        end
+      end)
+    end
+  end
+
+  function menu:addBottomButton(caption, hotkey, x, row, callback)
+    local bckground = CGraphic:New("ui/readyt/butterr.png")
+    bckground:Load()
+    local backgroundWidget = ImageWidget(bckground)
+    local h = backgroundWidget:getHeight()
+    local x = x - (backgroundWidget:getWidth() / 2)
+    local y = Video.Height - (h * 0.5 * row) - h
+    menu:add(backgroundWidget, x, y)
+    local btn = menu:addTextButton(caption, hotkey, x, y + 16, callback)
+    btn:setSize(backgroundWidget:getWidth(), btn:getHeight())
+    return btn
+  end
 end
 
 function WarMenu(title, background, resize)
@@ -448,16 +553,18 @@ function WarMenu(title, background, resize)
   menu = MenuScreen()
 
   if background == nil then
-    bg = backgroundWidget
-  else
+    menu:add(backgroundWidget, 0, 0)
+  elseif type(background) == "string" then
     bgg = CGraphic:New(background)
     bgg:Load()
     if (resize == nil or resize == true) then
       bgg:Resize(Video.Width, Video.Height)
     end
-    bg = ImageWidget(bgg)
+    menu:add(ImageWidget(bgg), 0, 0)
+  else
+    menu:setOpaque(true)
+    menu:setBaseColor(Color(0, 0, 0, 255))
   end
-  menu:add(bg, 0, 0)
 
   AddMenuHelpers(menu)
 
@@ -597,6 +704,22 @@ function RunSelectScenarioMenu()
   menu:run()
 end
 
+function RunInfoMenu()
+  local menu = WarMenu()
+  local offx = (Video.Width - 640) / 2
+  local offy = (Video.Height - 480) / 2
+  
+  menu:addLabel("~<Game Information~>", offx + 640/2 + 12, offy + 192)
+  
+  menu:addFullButton("~!Back", "b", offx + 640 - 224 - 16, offy + 360 + 36*2, function() menu:stop() end)
+  
+  menu:addLabel(Name .. " V" .. Version .. "  " .. Homepage, offx + 320, offy + 226 + 18*0) 
+  menu:addLabel("Stratagus V" .. GetStratagusVersion() .. "  " .. GetStratagusHomepage(), offx + 320, offy + 226 + 18*1)
+  menu:addLabel(Copyright, offx + 320, offy + 290 + 18*4)
+  
+  menu:run()
+end
+
 function RunSinglePlayerGameMenu()
   local menu = WarMenu()
   local offx = (Video.Width - 640) / 2
@@ -685,34 +808,83 @@ function RunSinglePlayerGameMenu()
   menu:run()
 end
 
+
+
 function BuildProgramStartMenu()
   local menu = WarMenu()
   local offx = (Video.Width - 640) / 2
   local offy = (Video.Height - 480) / 2
 
-  menu:addLabel(Name .. " V" .. Version .. "  " .. Homepage, offx + 320, offy + 426 + 18*0)
-  menu:addLabel("Stratagus V" .. GetStratagusVersion() .. "  " .. GetStratagusHomepage(), offx + 320, offy + 426 + 18*1)
-  menu:addLabel(Copyright, offx + 320, offy + 390 + 18*4)
+  menu:addLabel("~white~" .. Name .. " V" .. Version, Video.Width - 60, Video.Height - 18*1) 
+  
+  menu:addAnimatedButton(
+    "videos/mainmenu/single.mng",
+    "videos/mainmenu/singleon.mng",
+    100, 50,
+    143, 115,
+    "~light-green~S~!ingle Player",
+    "s",
+    function() RunCampaignGameMenu(); menu:stop(1) end,
+    true
+  )
+  
+  menu:addAnimatedButton(
+    "videos/mainmenu/multi.mng",
+    "videos/mainmenu/multion.mng",
+    80, 250,
+    99, 261,
+    "~light-green~M~!ultiplayer",
+    "m",
+    function() RunMultiPlayerGameMenu(); menu:stop(1) end
+  )
+  
+  menu:addAnimatedButton(
+    "videos/mainmenu/exit.mng",
+    "videos/mainmenu/exiton.mng",
+    Video.Width - 300, Video.Height - 200,
+    Video.Width - 285, Video.Height - 200,
+    "~light-green~E~!xit Program",
+    "x",
+    function() menu:stop() end
+  )
 
-  menu:addFullButton("~!Single Player Game", "s", offx + 208, offy + 104 + 36*0,
-    function() RunSinglePlayerGameMenu(); menu:stop(1) end)
-  menu:addFullButton("~!Multi Player Game", "m", offx + 208, offy + 104 + 36*1,
-    function() RunMultiPlayerGameMenu(); menu:stop(1) end)
-  menu:addFullButton("~!Campaign Game", "c", offx + 208, offy + 104 + 36*2,
-    function() RunCampaignGameMenu(); menu:stop(1) end)
-  menu:addFullButton("~!Load Game", "l", offx + 208, offy + 104 + 36*3,
-    function() RunLoadGameMenu(); menu:stop(1) end)
-  menu:addFullButton("~!Replay Game", "r", offx + 208, offy + 104 + 36*4,
-    function() RunReplayGameMenu(); menu:stop(1) end)
-  menu:addFullButton("~!Options", "o", offx + 208, offy + 104 + 36*5,
-    function() RunOptionsMenu(); menu:stop(1) end)
-  menu:addFullButton("S~!how Credits", "h", offx + 208, offy + 104 + 36*6, RunShowCreditsMenu)
+  --menu:addFullButton("~!Single Player Game", "s", offx + 208, offy + 104 + 36*0,
+    --function() RunSinglePlayerGameMenu(); menu:stop(1) end)
 
-  menu:addFullButton("E~!xit Program", "x", offx + 208, offy + 104 + 36*8,
-    function() menu:stop() end)
+  --menu:addFullButton("~!Multi Player Game", "m", offx + 208, offy + 104 + 36*1,
+    --function() RunMultiPlayerGameMenu(); menu:stop(1) end)
+
+  --menu:addFullButton("~!Campaign Game", "c", offx + 208, offy + 104 + 36*2,
+    --function() RunCampaignGameMenu(); menu:stop(1) end)
+
+  --menu:addFullButton("~!Load Game", "l", offx + 208, offy + 104 + 36*3,
+    --function() RunLoadGameMenu(); menu:stop(1) end)
+    
+  --menu:addFullButton("~!Replay Game", "r", offx + 208, offy + 104 + 36*4,
+    --function() RunReplayGameMenu(); menu:stop(1) end)
+    
+  --menu:addFullButton("~!Options", "o", offx + 208, offy + 104 + 36*5,
+  --  function() RunOptionsMenu(); menu:stop(1) end)
+  
+    --menu:addFullButton("E~!xit Program", "x", offx + 208, offy + 104 + 36*8,
+    --function() menu:stop() end)
+  
+  -- menu:addTextButton("~light-green~C~white~ampaign Game", "c", 100, Video.Height-120, function() RunCampaignGameMenu(); menu:stop(1) end)
+  
+  -- menu:addTextButton("~light-green~L~white~oad Game", "l", 100, Video.Height-100, function() RunReplayGameMenu(); menu:stop(1) end)
+    
+  -- menu:addTextButton("~light-green~R~white~eplay Game", "r", 100, Video.Height-80, function() RunReplayGameMenu(); menu:stop(1) end)
+    
+  menu:addTextButton("~light-green~O~white~ptions", "o", 100, Video.Height-60, function() RunOptionsMenu(); menu:stop(1) end)
+  
+  menu:addTextButton("~white~Show ~light-green~I~white~nfo", "i", 100, Video.Height-40, function() RunInfoMenu(); menu:stop(1) end)
+  
+  menu:addTextButton("~white~Show Cre~light-green~d~white~its", "d", 100, Video.Height-20, RunShowCreditsMenu)
 
   return menu:run()
 end
+
+
 
 LoadGameFile = nil
 
